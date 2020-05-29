@@ -17,7 +17,7 @@ module.exports = {
             const emailValidation = await db.query(`SELECT email FROM users WHERE email = $1`, [email]);
         
             if(emailValidation.rowCount > 0)
-                return res.sendStatus(409);
+                return res.status(409).send({error: 'Email already used'});
             else{
                 const hashedPassword = await bcrypt.hash(password, 10);
                 await db.query( 'INSERT INTO users (name, email, password, created_at, updated_at) VALUES($1, $2, $3, $4, $5)',
