@@ -13,14 +13,19 @@ module.exports = {
                 email,
                 password
             } = req.body;
-
-            const hashedPassword = await bcrypt.hash(password, 10);
-                await db.query( 'INSERT INTO users (name, email, password, created_at, updated_at) VALUES($1, $2, $3, $4, $5)',
-                                [ name, email, hashedPassword, new Date(), new Date() ] );
-                res.sendStatus(201);
             
+            const emailValidation = await db.query(`SELECT email FROM users WHERE email = $1`, [email]);
+        
+            if(emailValidation.rowCount > 0)
+                return res.sendStatus(409);
+            else{
+                const hashedPassword = await bcrypt.hash(password, 10);
+                await db.query( 'INSERT INTO users (name, email, password, created_at, updated_at) VALUES($1, $2, $3, $4, $5)',
+                            [ name, email, hashedPassword, new Date(), new Date() ] );
+                return res.sendStatus(201);
+            }     
         }catch{
-            res.sendStatus(500);
+            return res.sendStatus(500);
         }
     },
 }

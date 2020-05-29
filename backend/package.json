@@ -12,6 +12,7 @@
     "nodemon": "^2.0.4"
   },
   "scripts": {
-    "start" : "nodemon ./src/server.js"
+    "start" : "nodemon ./src/server.js",
+    "test" : "nodemon ./src/quicktest.js"
   }
 }
