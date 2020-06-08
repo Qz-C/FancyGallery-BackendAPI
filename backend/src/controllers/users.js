@@ -97,9 +97,8 @@ module.exports = {
             return res.status(200).send({ message: "User successful deleted" });
         
         }catch (err){
-            
+
             return res.status(500).send({error: 'something goes wrong, please try again later'});
         }
     },
-
 }
