@@ -8,4 +8,8 @@ const db = new Pool({
     port: 5432,
 });
 
+db.connect()
+    .then(res => console.log('Successful connected to database'))
+    .catch(e => console.error(e.stack))
+
 module.exports = db;

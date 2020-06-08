@@ -3,10 +3,6 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const authConfig = require('../config/auth.json');
 
-db.connect()
-    .then(res => console.log('Successful connected to database'))
-    .catch(e => console.error(e.stack))
-
 function genarateToken( params = {} ){
     return jwt.sign(params, authConfig.secret, {
         expiresIn: 604800,
