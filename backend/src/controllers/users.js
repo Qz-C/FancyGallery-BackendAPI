@@ -1,7 +1,7 @@
 const db = require('../db/connection');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const authConfig = require('../config/auth.json')
+const authConfig = require('../config/auth.json');
 
 db.connect()
     .then(res => console.log('Successful connected to database'))
@@ -61,6 +61,45 @@ module.exports = {
             user: user.rows[0], 
             token: genarateToken({email: email})
         });
+    },
+
+    async updateName (req, res) {
+        
+        const { name } = req.body;
+        try{
+            const user = await db.query('UPDATE users SET name = $1, updated_at = $2 WHERE email = $3 RETURNING *',
+                                        [name , new Date() , req.email]);
+            user.rows[0].password = undefined;
+            return res.status(200).send({user:user.rows[0]});
+        }catch (err) {
+            return res.status(500).send({error: 'something goes wrong, please try again later'});}
+    },
+
+    async updatePassword (req, res) {
+        
+        const { password } = req.body;
+
+        hashedPassword =  await bcrypt.hash(password, 10);
+
+        try{
+            const user = await db.query('UPDATE users SET password = $1, updated_at = $2 WHERE email = $3 RETURNING *',
+                                        [hashedPassword , new Date() , req.email]);
+            user.rows[0].password = undefined;
+            return res.status(200).send({user:user.rows[0]});
+        }catch (err) {
+            return res.status(500).send({error: 'something goes wrong, please try again later'});}
+    },
+
+    async delete (req, res) {
+        try{
+            
+            await db.query('DELETE from users WHERE email = $1', [req.email]);
+            return res.status(200).send({ message: "User successful deleted" });
+        
+        }catch (err){
+            
+            return res.status(500).send({error: 'something goes wrong, please try again later'});
+        }
     },
 
 }
