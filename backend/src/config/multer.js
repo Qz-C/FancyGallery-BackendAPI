@@ -13,7 +13,7 @@ module.exports = {
 
             const fileName  = `${prefix}-${file.originalname}`
 
-            cd(null, fileName)
+            cb(null, fileName)
         }
     }),
     limits: {
@@ -29,7 +29,7 @@ module.exports = {
         if(allowedMimes.includes(file.mimetype)){
             cb(null, true);
         }else {
-            cd(new Error("Invalid file type"));
+            cb(new Error("Invalid file type"));
         } 
     }
 }
