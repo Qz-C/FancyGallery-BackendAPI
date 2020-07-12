@@ -2,6 +2,8 @@ const db = require('../db/connection');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const authConfig = require('../config/auth.json');
+const fs = require('fs');
+const e = require('express');
 
 function genarateToken( params = {} ){
     return jwt.sign(params, authConfig.secret, {
@@ -28,6 +30,7 @@ module.exports = {
                             [ name, email, hashedPassword, new Date(), new Date() ] );
                 
                 user.rows[0].password = undefined;
+                fs.mkdirSync(`temp/${email}`);
                 return res.status(201).send({
                     user: user.rows[0],
                     token: genarateToken({email: email}),
@@ -35,7 +38,7 @@ module.exports = {
         }
 
         }catch{
-            return res.sendStatus(500);
+            return res.status(500).send("An unexpected error ocorred");
         }
     },
 
@@ -90,6 +93,7 @@ module.exports = {
         try{
             
             await db.query('DELETE from users WHERE email = $1', [req.email]);
+            fs.rmdirSync(`temp/${req.email}`);
             return res.status(200).send({ message: "User successful deleted" });
         
         }catch (err){
