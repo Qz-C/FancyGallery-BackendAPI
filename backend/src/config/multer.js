@@ -7,17 +7,15 @@ module.exports = {
         destination : (req, file, cb) => {
             cb(null, path.resolve(__dirname, "..", "..", "temp", `${req.email}`))
         },
-        filename : (req, file, cd) => {
-
-            const prefix = Date.now();
-
-            const fileName  = `${prefix}-${file.originalname}`
+        filename : (req, file, cb) => {
+            const format = file.mimetype.split('/');
+            const fileName  = `${file.fieldname}-${Date.now()}.${format[1]}`
 
             cb(null, fileName)
         }
     }),
     limits: {
-        fileSize: 100 * 1024 * 1024,
+        fileSize: 5 * 1024 * 1024,
     },
     fileFilter: (req, file, cb) => {
         const allowedMimes = [

@@ -91,7 +91,6 @@ module.exports = {
 
     async delete (req, res) {
         try{
-            
             await db.query('DELETE from users WHERE email = $1', [req.email]);
             fs.rmdirSync(`temp/${req.email}`);
             return res.status(200).send({ message: "User successful deleted" });
