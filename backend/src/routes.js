@@ -13,7 +13,7 @@ route.put('/user/update/name', authMiddleware, usersController.updateName);
 route.put('/user/update/password', authMiddleware, usersController.updatePassword);
 route.delete('/user/delete', authMiddleware, usersController.delete);
 
-route.post('/upload', authMiddleware, multer(multerConfig).single("img"), imgController.upload);
+route.post('/upload', authMiddleware, multer(multerConfig).single('img'), imgController.upload);
 route.put('/img/update/name', authMiddleware, imgController.updateName);
 route.delete('/img/delete', authMiddleware, imgController.delete);
 route.get('/img/list', authMiddleware, imgController.list);
