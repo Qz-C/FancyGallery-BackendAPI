@@ -2,7 +2,7 @@ const db = require('../db/connection');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
-const e = require('express');
+
 require('dotenv').config();
 
 function genarateToken( params = {} ){
@@ -84,7 +84,7 @@ module.exports = {
             const user = await db.query('UPDATE users SET password = $1, updated_at = $2 WHERE email = $3 RETURNING *',
                                         [hashedPassword , new Date() , req.email]);
             user.rows[0].password = undefined;
-            return res.status(201).send({user:user.rows[0]});
+            return res.status(200).send({user:user.rows[0]});
         }catch (err) {
             return res.status(500).send({error: 'something goes wrong, please try again later'});}
     },
@@ -92,7 +92,13 @@ module.exports = {
     async delete (req, res) {
         try{
             await db.query('DELETE from users WHERE email = $1', [req.email]);
-            fs.rmdirSync(`temp/${req.email}`);
+            
+            try{
+                fs.rmdirSync(`temp/${req.email}`);
+            }catch(err){
+                console.log(err)
+            }
+            
             return res.status(200).send({ message: "User successful deleted" });
         
         }catch (err){
