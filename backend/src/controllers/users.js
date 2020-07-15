@@ -1,12 +1,12 @@
 const db = require('../db/connection');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const authConfig = require('../config/auth.json');
 const fs = require('fs');
 const e = require('express');
+require('dotenv').config();
 
 function genarateToken( params = {} ){
-    return jwt.sign(params, authConfig.secret, {
+    return jwt.sign(params, process.env.SECRET_AUTH, {
         expiresIn: 604800,
     })
 }
