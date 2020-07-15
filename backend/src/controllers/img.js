@@ -55,7 +55,7 @@ module.exports = {
                 console.error(e)
             }
 
-            return res.status(200).send(img);
+            return res.status(201).send(img);
 
         }catch {
             return res.status(500).send({error: 'something goes wrong, please try again later'});
