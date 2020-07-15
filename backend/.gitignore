@@ -1,7 +1,7 @@
 node_modules
+.env 
 yarn.lock
 yarn-error.log
-.env
 temp/*
 !temp/.gitkeep
 
