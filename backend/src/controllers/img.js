@@ -42,7 +42,7 @@ module.exports = {
 
             const NewName = `${tempName}.${format}`
 
-            if ( (await db.query(`SELECT * FROM photos WHERE name = $1 AND id != $2`, [NewName, id])).rowCount > 0 )
+            if ( (await db.query(`SELECT * FROM photos WHERE name = $1 AND id != $2 users_email = $3`, [NewName, id, email])).rowCount > 0 )
                 return res.status(409).send({error : "Nome already in use"})
             
             const img = (await db.query('UPDATE photos SET name = $1, updated_at = $2 WHERE users_email = $3 AND id = $4 RETURNING *',
