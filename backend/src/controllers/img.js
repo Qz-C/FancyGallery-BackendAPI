@@ -1,7 +1,6 @@
 const db = require('../db/connection');
 const fs = require('fs');
 const path = require('path');
-const { Z_ERRNO } = require('zlib');
 
 module.exports = {
     async upload(req, res){
