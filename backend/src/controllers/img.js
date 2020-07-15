@@ -1,7 +1,7 @@
 const db = require('../db/connection');
 const fs = require('fs');
 const path = require('path');
-const { timeStamp } = require('console');
+const { Z_ERRNO } = require('zlib');
 
 module.exports = {
     async upload(req, res){
@@ -36,7 +36,6 @@ module.exports = {
         const tempName = req.body.name
         const email = req.email
 
-
         try{
 
             const {name: oldName , format} = (await db.query('SELECT * FROM photos WHERE users_email = $1 AND id = $2', 
@@ -44,15 +43,20 @@ module.exports = {
 
             const NewName = `${tempName}.${format}`
 
-            const img = (await db.query('UPDATE photos SET name = $1, updated_at = $2 WHERE users_email = $3 RETURNING *',
-                                        [NewName , new Date() , email])).rows[0];
+            if ( (await db.query(`SELECT * FROM photos WHERE name = $1 AND id != $2`, [NewName, id])).rowCount > 0 )
+                return res.status(409).send({error : "Nome already in use"})
+            
+            const img = (await db.query('UPDATE photos SET name = $1, updated_at = $2 WHERE users_email = $3 AND id = $4 RETURNING *',
+                                        [NewName , new Date() , email, id])).rows[0];
 
             try{
                 fs.renameSync(`temp/${email}/${oldName}`, `temp/${email}/${NewName}`)
             }catch (e) {
                 console.error(e)
             }
+
             return res.status(200).send(img);
+
         }catch {
             return res.status(500).send({error: 'something goes wrong, please try again later'});
         }
@@ -98,6 +102,19 @@ module.exports = {
 
     async download (req, res){
 
+        const id = req.query.id;
+        const email = req.email;
+
+        const { url:path, name } = (await db.query(`SELECT * FROM photos WHERE users_email = $1 AND id = $2`,
+                                [email , id])).rows[0]
+        
+        return res.download(`temp/${email}/${name}`, function (err) {
+            if (!err)
+                return
+            else{
+                console.log(err)
+            }
+        })
     }
 
 }

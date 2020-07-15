@@ -21,7 +21,7 @@ module.exports = {
         const allowedMimes = [
             'image/jpeg',
             'image/png',
-            'image/gif'
+            'image/gif',
         ];
 
         if(allowedMimes.includes(file.mimetype)){
