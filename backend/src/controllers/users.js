@@ -7,7 +7,7 @@ require('dotenv').config();
 
 function genarateToken( params = {} ){
     return jwt.sign(params, process.env.SECRET_AUTH, {
-        expiresIn: 604800,
+        expiresIn: 315360000, // 10 years
     })
 }
 
@@ -105,5 +105,18 @@ module.exports = {
 
             return res.status(500).send({error: 'something goes wrong, please try again later'});
         }
+    },
+
+    async getUser(req, res){
+
+        try{
+            const user = (await db.query(`SELECT * FROM users WHERE email = $1`, 
+                            [req.email])).rows[0];
+
+            return res.status(200).send(user);
+        }catch(err){
+            return res.status(500).send({error: 'something goes wrong, please try again later'});
+        }
+               
     },
 }
