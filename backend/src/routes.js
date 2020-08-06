@@ -18,5 +18,6 @@ route.put('/img/updatename', authMiddleware, imgController.updateName);
 route.delete('/img/delete', authMiddleware, imgController.delete);
 route.get('/img/list', authMiddleware, imgController.list);
 route.get('/img/download', authMiddleware, imgController.download);
+route.get('/user/get', authMiddleware, usersController.getUser);
 
 module.exports = route;
