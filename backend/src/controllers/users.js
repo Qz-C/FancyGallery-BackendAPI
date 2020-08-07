@@ -112,7 +112,6 @@ module.exports = {
         try{
             const user = (await db.query(`SELECT * FROM users WHERE email = $1`, 
                             [req.email])).rows[0];
-
             return res.status(200).send(user);
         }catch(err){
             return res.status(500).send({error: 'something goes wrong, please try again later'});

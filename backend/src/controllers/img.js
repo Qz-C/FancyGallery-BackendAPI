@@ -90,7 +90,7 @@ module.exports = {
             const imgs = (await db.query('SELECT * FROM photos WHERE users_email = $1', 
                             [email])).rows;
             if(imgs.length === 0)
-                res.status(200).send({message : "There is mo image uploaded to this account"});
+                res.status(200).send([]);
             else
                 res.status(200).send(imgs);
         }catch(e){
