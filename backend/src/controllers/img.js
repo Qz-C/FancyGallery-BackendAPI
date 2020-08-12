@@ -85,14 +85,16 @@ module.exports = {
     async list (req, res){
 
         const email = req.email;
+        const page = req.query.page;
+        const itemsPerPage = 9;
 
         try{
-            const imgs = (await db.query('SELECT * FROM photos WHERE users_email = $1', 
-                            [email])).rows;
+            const imgs = (await db.query('SELECT * FROM photos WHERE users_email = $1 OFFSET $2 LIMIT $3', 
+                            [email, (page-1)*itemsPerPage, itemsPerPage])).rows;
             if(imgs.length === 0)
                 res.status(200).send([]);
             else
-                res.status(200).send(imgs);
+                res.status(200).send({imgList:imgs,page:page});
         }catch(e){
             console.error(e)
             return res.status(500).send({error: 'something goes wrong, please try again later'});
