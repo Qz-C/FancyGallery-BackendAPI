@@ -86,11 +86,11 @@ module.exports = {
 
         const email = req.email;
         const page = req.query.page;
-        const itemsPerPage = 9;
+        const items = req.query.items;
 
         try{
             const imgs = (await db.query('SELECT * FROM photos WHERE users_email = $1 OFFSET $2 LIMIT $3', 
-                            [email, (page-1)*itemsPerPage, itemsPerPage])).rows;
+                            [email, (page-1)*items,items])).rows;
             if(imgs.length === 0)
                 res.status(200).send([]);
             else
