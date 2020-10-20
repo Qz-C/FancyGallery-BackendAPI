@@ -1,6 +1,7 @@
 const db = require('../db/connection');
-const fs = require('fs');
-const path = require('path');
+const aws = require("aws-sdk");
+
+const s3 = new aws.S3();
 
 module.exports = {
     async upload(req, res){
@@ -11,8 +12,6 @@ module.exports = {
             size,
             mimetype
         } = req.file;
-        
-        console.log(url);
 
         try{
             const email = req.email;
@@ -40,7 +39,7 @@ module.exports = {
         try{
 
             const {name: oldName , format} = (await db.query('SELECT * FROM photos WHERE users_email = $1 AND id = $2', 
-                                            [email, id])).rows[0];
+            [email, id])).rows[0];
 
             const NewName = `${tempName}.${format}`
 
@@ -63,11 +62,17 @@ module.exports = {
 
         try{
 
-            const { name } = (await db.query('SELECT * FROM photos WHERE users_email = $1 AND id = $2', 
-                            [email, id])).rows[0];
+            const { name } = (await db.query(`SELECT * FROM photos WHERE users_email = $1 AND id = $2`,[email , id])).rows[0]
 
             await db.query('DELETE from photos WHERE users_email = $1 AND id = $2', 
                             [email, id]);
+
+            s3.deleteObject({
+                Bucket : "fancygallery",
+                Key : name
+            }, function (err, data) {
+                if(err) console.log(err, err.stack);
+            })
             
             return res.status(200).send({ message: "Image successful deleted" });
         }catch (e){
@@ -100,16 +105,14 @@ module.exports = {
         const id = req.query.id;
         const email = req.email;
 
-        const { url, name } = (await db.query(`SELECT * FROM photos WHERE users_email = $1 AND id = $2`,
+        const { name } = (await db.query(`SELECT * FROM photos WHERE users_email = $1 AND id = $2`,
                                 [email , id])).rows[0]
-        
-        return res.download(url, function (err) {
-            if (!err)
-                return
-            else{
-                console.log(err)
-            }
-        })
+
+        let fileStream = s3.getObject({
+            Bucket : "fancygallery",
+            Key : name
+        }).createReadStream();
+        fileStream.pipe(res);
     }
 
 }
