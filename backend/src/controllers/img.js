@@ -6,12 +6,14 @@ module.exports = {
     async upload(req, res){
 
         const {
-            destination,
-            filename,
+            location: url,
+            key,
             size,
             mimetype
         } = req.file;
         
+        console.log(url);
+
         try{
             const email = req.email;
 
@@ -20,7 +22,7 @@ module.exports = {
             const user = ( await db.query(`SELECT * FROM users WHERE email = $1`, [email])).rows[0]
             
             const img = (await db.query(`INSERT INTO photos (url, name, size, format, users_email, users_id, created_at, updated_at) VALUES( $1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
-                     [destination, filename, size, format, user.email, user.id, new Date(), new Date()])).rows[0];
+                     [url, key, size, format, user.email, user.id, new Date(), new Date()])).rows[0];
         
             return res.status(201).send(img)
         }catch(e){
@@ -48,12 +50,6 @@ module.exports = {
             const img = (await db.query('UPDATE photos SET name = $1, updated_at = $2 WHERE users_email = $3 AND id = $4 RETURNING *',
                                         [NewName , new Date() , email, id])).rows[0];
 
-            try{
-                fs.renameSync(`temp/${email}/${oldName}`, `temp/${email}/${NewName}`)
-            }catch (e) {
-                console.error(e)
-            }
-
             return res.status(201).send(img);
 
         }catch {
@@ -69,8 +65,6 @@ module.exports = {
 
             const { name } = (await db.query('SELECT * FROM photos WHERE users_email = $1 AND id = $2', 
                             [email, id])).rows[0];
-                        
-            fs.unlinkSync(`temp/${email}/${name}`)
 
             await db.query('DELETE from photos WHERE users_email = $1 AND id = $2', 
                             [email, id]);
@@ -106,10 +100,10 @@ module.exports = {
         const id = req.query.id;
         const email = req.email;
 
-        const { url:path, name } = (await db.query(`SELECT * FROM photos WHERE users_email = $1 AND id = $2`,
+        const { url, name } = (await db.query(`SELECT * FROM photos WHERE users_email = $1 AND id = $2`,
                                 [email , id])).rows[0]
         
-        return res.download(`temp/${email}/${name}`, function (err) {
+        return res.download(url, function (err) {
             if (!err)
                 return
             else{

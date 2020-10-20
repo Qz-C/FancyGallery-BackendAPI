@@ -30,7 +30,6 @@ module.exports = {
                             [ name, email, hashedPassword, new Date(), new Date() ] );
                 
                 user.rows[0].password = undefined;
-                fs.mkdirSync(`temp/${email}`);
                 return res.status(201).send({
                     user: user.rows[0],
                     token: genarateToken({email: email}),
@@ -92,12 +91,6 @@ module.exports = {
     async delete (req, res) {
         try{
             await db.query('DELETE from users WHERE email = $1', [req.email]);
-            
-            try{
-                fs.rmdirSync(`temp/${req.email}`);
-            }catch(err){
-                console.log(err)
-            }
             
             return res.status(200).send({ message: "User successful deleted" });
         
